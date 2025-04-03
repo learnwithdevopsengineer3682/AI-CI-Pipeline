@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: test-vm
+    runs-on: self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
