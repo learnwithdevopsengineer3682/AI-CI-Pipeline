@@ -45,7 +45,7 @@ jobs:
           # Extract error message from the test report
           ERROR_MESSAGE=$(xmllint --xpath "//testcase/failure/text()" report.xml)
           # Run the Mistral model using Ollama to analyze the failure
-          ollama run mistral --prompt "I have a failed test case with the following error: $ERROR_MESSAGE. Suggest a fix for this failure." > ai_suggestions.txt
+          ollama run mistral "I have a failed test case with the following error: $ERROR_MESSAGE. Suggest a fix for this failure." > ai_suggestions.txt
           cat ai_suggestions.txt
 
       - name: Upload AI Suggestions
