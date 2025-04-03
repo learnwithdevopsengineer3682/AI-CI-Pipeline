@@ -33,7 +33,12 @@ jobs:
         id: test
         run: |
           pytest --junitxml=report.xml || echo "TEST_FAILED=true" >> $GITHUB_ENV
-      
+
+      - name: Check if report.xml is generated
+        run: |
+          ls -la
+          cat report.xml  
+    
       - name: Analyze Failures with Ollama
         if: env.TEST_FAILED == 'true'
         run: |
