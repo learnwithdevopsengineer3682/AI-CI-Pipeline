@@ -1,0 +1,40 @@
+name: CI with AI Failure Prediction
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: test-vm
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Install Dependencies
+        run: sudo apt-get install -y libxml2-utils jq
+      
+      - name: Run Tests
+        id: test
+        run: |
+          pytest --junitxml=report.xml || echo "TEST_FAILED=true" >> $GITHUB_ENV
+      
+      - name: Analyze Failures with Ollama
+        if: env.TEST_FAILED == 'true'
+        run: |
+          # Extract error message from the test report
+          ERROR_MESSAGE=$(xmllint --xpath "//testcase/failure/text()" report.xml)
+          # Run the Mistral model using Ollama to analyze the failure
+          ollama run mistral --prompt "I have a failed test case with the following error: $ERROR_MESSAGE. Suggest a fix for this failure." > ai_suggestions.txt
+          cat ai_suggestions.txt
+
+      - name: Upload AI Suggestions
+        if: env.TEST_FAILED == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: AI-Failure-Suggestions
+          path: ai_suggestions.txt
